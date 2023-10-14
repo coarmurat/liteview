@@ -6,13 +6,14 @@ namespace LiteView.Helpers
     public class Keyboard
     {
         private const int WH_KEYBOARD_LL = 13;
-
+        public const int WM_KEYDOWN = 0x0100;
+        public const int WM_KEYUP = 0x0101;
         class ListenType
         {
             public Keys Key { get; }
-            public Action<IntPtr> Action { get; }
+            public Action<int> Action { get; }
 
-            public ListenType(Keys key, Action<IntPtr> action)
+            public ListenType(Keys key, Action<int> action)
             {
                 Key = key;
                 Action = action;
@@ -30,7 +31,7 @@ namespace LiteView.Helpers
                 {
                     if (listenType.Key == (Keys)Marshal.ReadInt32(lParam))
                     {
-                        listenType.Action.Invoke(wParam);
+                        listenType.Action.Invoke(wParam.ToInt32());
                     }
                 }
             }
@@ -44,7 +45,7 @@ namespace LiteView.Helpers
             hook = WinApi.SetWindowsHookEx(WH_KEYBOARD_LL, CallBack, WinApi.GetModuleHandle(null), 0);
         }
 
-        public Func<bool> Listen(Keys key, Action<IntPtr> action)
+        public Func<bool> Listen(Keys key, Action<int> action)
         {
             ListenType listenType = new(key, action);
             listenTypes.Add(listenType);
